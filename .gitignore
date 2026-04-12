@@ -4,3 +4,6 @@ __pycache__/
 .cache/
 results/
 data/
+.agents/
+.claude/
+skills-lock.json

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clasificador de Solicitudes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-eyebrow">Proyecto IA - 2026</div>
+            <h1 class="site-title">Clasificador de Solicitudes de Soporte</h1>
+            <p class="site-subtitle">Ingresa el texto de una solicitud y el sistema determinará su categoría
+                automáticamente.</p>
+        </div>
+    </header>
+
+    <main>
+
+        <div class="card">
+            <label for="texto" class="field-label">
+                Solicitud del cliente
+                <span class="field-hint">— Ctrl+Enter para clasificar</span>
+            </label>
+            <textarea id="texto" class="textarea" rows="5"
+                placeholder="Ej: I need help canceling my order, I can no longer afford it."
+                maxlength="2000"></textarea>
+            <div class="textarea-footer">
+                <span id="char-count" class="char-count">0 / 2000</span>
+            </div>
+            <div class="actions">
+                <button id="btn-clasificar" class="btn-primary">
+                    <span class="btn-text">Clasificar</span>
+                </button>
+                <button id="btn-limpiar" class="btn-secondary">Limpiar</button>
+            </div>
+        </div>
+
+        <section id="resultado" class="resultado hidden" aria-live="polite">
+            <div class="resultado-label">Categoría predicha</div>
+            <div id="categoria" class="resultado-valor"></div>
+        </section>
+
+        <section id="error" class="error hidden" aria-live="assertive">
+            <span id="error-msg"></span>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <span>Proyecto IA</span>
+        <span class="sep">-</span>
+        <span>Christopher Yuman - Susana García - Erick Rivas</span>
+        <span class="sep">-</span>
+        <span>2026</span>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
