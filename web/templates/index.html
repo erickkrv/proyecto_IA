@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clasificador de Solicitudes</title>
+    <title>Sistema de Tickets — Soporte</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
@@ -17,35 +17,57 @@
     <header class="site-header">
         <div class="header-inner">
             <div class="header-eyebrow">Proyecto IA - 2026</div>
-            <h1 class="site-title">Clasificador de Solicitudes de Soporte</h1>
-            <p class="site-subtitle">Ingresa el texto de una solicitud y el sistema determinará su categoría
-                automáticamente.</p>
+            <h1 class="site-title">Sistema de Tickets de Soporte</h1>
+            <p class="site-subtitle">Crea un ticket de soporte y el sistema clasificará automáticamente su categoría.
+            </p>
         </div>
     </header>
 
     <main>
 
         <div class="card">
-            <label for="texto" class="field-label">
-                Solicitud del cliente
-                <span class="field-hint">— Ctrl+Enter para clasificar</span>
-            </label>
-            <textarea id="texto" class="textarea" rows="5"
-                placeholder="Ej: I need help canceling my order, I can no longer afford it."
-                maxlength="2000"></textarea>
-            <div class="textarea-footer">
-                <span id="char-count" class="char-count">0 / 2000</span>
+
+            <!-- Ticket ID -->
+            <div class="form-row">
+                <label for="ticket-id" class="field-label">ID de Ticket</label>
+                <input type="text" id="ticket-id" class="input-readonly" readonly />
             </div>
+
+            <div class="divider"></div>
+
+            <!-- Subject -->
+            <div class="form-row">
+                <label for="subject" class="field-label">Asunto</label>
+                <input type="text" id="subject" class="input-text" placeholder="Ej: Problem with my recent order"
+                    maxlength="150" />
+            </div>
+
+            <!-- Description -->
+            <div class="form-row">
+                <label for="descripcion" class="field-label">
+                    Descripción
+                    <span class="field-hint">— Ctrl+Enter para clasificar</span>
+                </label>
+                <textarea id="descripcion" class="textarea" rows="5"
+                    placeholder="Describe el problema con el mayor detalle posible..." maxlength="2000"></textarea>
+                <div class="textarea-footer">
+                    <span id="char-count" class="char-count">0 / 2000</span>
+                </div>
+            </div>
+
             <div class="actions">
                 <button id="btn-clasificar" class="btn-primary">
-                    <span class="btn-text">Clasificar</span>
+                    <span class="btn-text">Clasificar Ticket</span>
                 </button>
-                <button id="btn-limpiar" class="btn-secondary">Limpiar</button>
+                <button id="btn-limpiar" class="btn-secondary">Nuevo Ticket</button>
             </div>
         </div>
 
         <section id="resultado" class="resultado hidden" aria-live="polite">
-            <div class="resultado-label">Categoría predicha</div>
+            <div class="resultado-meta">
+                <span id="resultado-ticket-id" class="resultado-ticket-id"></span>
+                <span class="resultado-label">Categoría predicha</span>
+            </div>
             <div id="categoria" class="resultado-valor"></div>
         </section>
 
