@@ -61,6 +61,26 @@ class NaiveBayesMultinomial:
                 # Math.log en base e 
                 cond_log_cls[i] = math.log(numerador / denominator)
 
+    def predict_proba(self, x):
+        """
+        Retorna un dict {clase: porcentaje} usando softmax sobre los log-scores.
+        Acepta un único vector de características.
+        """
+        scores = {}
+        for cls in self.classes:
+            score = self.prior_log_probs[cls]
+            cond_log_cls = self.cond_log_probs[cls]
+            for i, freq in enumerate(x):
+                if freq > 0:
+                    score += cond_log_cls[i] * freq
+            scores[cls] = score
+
+        # Softmax numéricamente estable
+        max_score = max(scores.values())
+        exp_scores = {cls: math.exp(s - max_score) for cls, s in scores.items()}
+        total = sum(exp_scores.values())
+        return {cls: round(exp_scores[cls] / total * 100, 2) for cls in self.classes}
+
     def predict(self, X):
         """
         Dado un vector o un de lista de vectores, retorna sus predicciones.
