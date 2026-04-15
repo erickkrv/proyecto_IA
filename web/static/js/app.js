@@ -1,96 +1,118 @@
-const btnClasificar     = document.getElementById("btn-clasificar");
-const btnLimpiar        = document.getElementById("btn-limpiar");
-const ticketIdEl        = document.getElementById("ticket-id");
-const subjectEl         = document.getElementById("subject");
-const descripcionEl     = document.getElementById("descripcion");
-const charCount         = document.getElementById("char-count");
-const seccionResult     = document.getElementById("resultado");
-const resultTicketIdEl  = document.getElementById("resultado-ticket-id");
-const categoriaEl       = document.getElementById("categoria");
-const seccionError      = document.getElementById("error");
-const errorMsgEl        = document.getElementById("error-msg");
+const btnClasificar   = document.getElementById("btn-clasificar");
+const btnLimpiar      = document.getElementById("btn-limpiar");
+const ticketIdEl      = document.getElementById("ticket-id");
+const subjectEl       = document.getElementById("subject");
+const descripcionEl   = document.getElementById("descripcion");
+const charCountEl     = document.getElementById("char-count");
+const emptyState      = document.getElementById("empty-state");
+const resultContent   = document.getElementById("resultado");
+const resultTicketRef = document.getElementById("resultado-ticket-id");
+const categoriaEl     = document.getElementById("categoria");
+const resultConf      = document.getElementById("result-confidence");
+const probChartEl     = document.getElementById("prob-chart");
+const errorBlock      = document.getElementById("error");
+const errorMsgEl      = document.getElementById("error-msg");
 
-// ── Generación de Ticket ID ─────────────────────────────
+// ── Ticket ID ───────────────────────────────────────────
 function generarTicketId() {
-    const num = Math.floor(10000 + Math.random() * 90000);
-    return `TKT-${num}`;
+    return "TKT-" + Math.floor(10000 + Math.random() * 90000);
 }
 
-function nuevoTicketId() {
-    ticketIdEl.value = generarTicketId();
-}
-
-nuevoTicketId();
+ticketIdEl.textContent = generarTicketId();
 
 // ── Contador de caracteres ──────────────────────────────
 descripcionEl.addEventListener("input", () => {
     const len = descripcionEl.value.length;
-    const max = descripcionEl.maxLength;
-    charCount.textContent = `${len} / ${max}`;
-    charCount.classList.toggle("near-limit", len > max * 0.85);
+    charCountEl.textContent = `${len} / 2000`;
+    charCountEl.classList.toggle("near-limit", len > 1700);
 });
 
-// ── UI helpers ──────────────────────────────────────────
-function mostrarResultado(categoria) {
-    resultTicketIdEl.textContent = ticketIdEl.value;
-    categoriaEl.textContent = categoria;
-    seccionResult.classList.remove("hidden");
-    seccionError.classList.add("hidden");
-}
-
-function mostrarError(mensaje) {
-    errorMsgEl.textContent = mensaje;
-    seccionError.classList.remove("hidden");
-    seccionResult.classList.add("hidden");
-}
-
-function limpiarPantalla() {
-    seccionResult.classList.add("hidden");
-    seccionError.classList.add("hidden");
-}
-
-function setLoading(activo) {
-    btnClasificar.disabled = activo;
-    if (activo) {
-        btnClasificar.innerHTML =
-            '<span class="spinner"></span><span class="btn-text">Clasificando...</span>';
-    } else {
-        btnClasificar.innerHTML =
-            '<span class="btn-text">Clasificar Ticket</span><span class="btn-arrow">→</span>';
+// ── Loading state ───────────────────────────────────────
+function setLoading(on) {
+    btnClasificar.disabled = on;
+    document.getElementById("btn-label").textContent = on ? "Clasificando..." : "Clasificar Ticket";
+    const spinner = btnClasificar.querySelector(".spinner");
+    if (on && !spinner) {
+        const s = document.createElement("span");
+        s.className = "spinner";
+        btnClasificar.prepend(s);
+    } else if (!on && spinner) {
+        spinner.remove();
     }
 }
 
-// ── Clasificar ──────────────────────────────────────────
+// ── Probability chart ───────────────────────────────────
+function buildChart(probabilidades, ganadora) {
+    const sorted = Object.entries(probabilidades).sort((a, b) => b[1] - a[1]);
+
+    probChartEl.innerHTML = sorted.map(([clase, pct], i) => {
+        const isWinner = clase === ganadora;
+        return `
+        <div class="prob-row ${isWinner ? "prob-row--winner" : ""}"
+             style="--delay:${i * 45}ms; --pct:${pct}%">
+            <span class="prob-name">${clase}</span>
+            <div class="prob-track"><div class="prob-fill"></div></div>
+            <span class="prob-pct">${pct.toFixed(1)}%</span>
+        </div>`;
+    }).join("");
+}
+
+// ── Mostrar resultado ───────────────────────────────────
+function mostrarResultado(categoria, probabilidades) {
+    const topPct = probabilidades[categoria];
+
+    categoriaEl.textContent = categoria;
+    resultTicketRef.textContent = ticketIdEl.textContent;
+    resultConf.innerHTML = `
+        <span class="confidence-value">${topPct.toFixed(1)}%</span>
+        <span class="confidence-label">Confianza</span>
+    `;
+    buildChart(probabilidades, categoria);
+
+    emptyState.classList.add("hidden");
+    errorBlock.classList.add("hidden");
+    resultContent.classList.remove("hidden");
+}
+
+function mostrarError(msg) {
+    errorMsgEl.textContent = msg;
+    emptyState.classList.add("hidden");
+    resultContent.classList.add("hidden");
+    errorBlock.classList.remove("hidden");
+}
+
+function limpiarResultados() {
+    resultContent.classList.add("hidden");
+    errorBlock.classList.add("hidden");
+    emptyState.classList.remove("hidden");
+}
+
+// ── Clasificar — solo usa la descripción ───────────────
 async function clasificar() {
-    const subject     = subjectEl.value.trim();
     const descripcion = descripcionEl.value.trim();
 
-    if (!subject && !descripcion) {
-        mostrarError("Por favor completa al menos el asunto o la descripción del ticket.");
+    if (!descripcion) {
+        mostrarError("Por favor escribe una descripción antes de clasificar.");
         return;
     }
 
-    // Concatenar asunto y descripción para la clasificación
-    const texto = [subject, descripcion].filter(Boolean).join(" ");
-
-    limpiarPantalla();
+    limpiarResultados();
     setLoading(true);
 
     try {
-        const respuesta = await fetch("/predict", {
+        const res  = await fetch("/predict", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ texto }),
+            body: JSON.stringify({ texto: descripcion }),
         });
+        const data = await res.json();
 
-        const datos = await respuesta.json();
-
-        if (!respuesta.ok || datos.error) {
-            mostrarError(datos.error || "Error desconocido en el servidor.");
+        if (!res.ok || data.error) {
+            mostrarError(data.error || "Error desconocido en el servidor.");
             return;
         }
 
-        mostrarResultado(datos.categoria);
+        mostrarResultado(data.categoria, data.probabilidades);
 
     } catch {
         mostrarError("No se pudo conectar con el servidor. Verifica que esté corriendo.");
@@ -103,17 +125,16 @@ async function clasificar() {
 function nuevoTicket() {
     subjectEl.value = "";
     descripcionEl.value = "";
-    charCount.textContent = "0 / 2000";
-    charCount.classList.remove("near-limit");
-    limpiarPantalla();
-    nuevoTicketId();
+    charCountEl.textContent = "0 / 2000";
+    charCountEl.classList.remove("near-limit");
+    ticketIdEl.textContent = generarTicketId();
+    limpiarResultados();
     subjectEl.focus();
 }
 
 // ── Eventos ─────────────────────────────────────────────
 btnClasificar.addEventListener("click", clasificar);
 btnLimpiar.addEventListener("click", nuevoTicket);
-
-descripcionEl.addEventListener("keydown", (e) => {
+descripcionEl.addEventListener("keydown", e => {
     if (e.key === "Enter" && e.ctrlKey) clasificar();
 });

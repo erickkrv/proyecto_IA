@@ -1,91 +1,127 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Tickets — Soporte</title>
+    <title>Sistema de Tickets — Soporte IA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Nunito+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css" />
 </head>
-
 <body>
 
-    <header class="site-header">
-        <div class="header-inner">
-            <div class="header-eyebrow">Proyecto IA - 2026</div>
-            <h1 class="site-title">Sistema de Tickets de Soporte</h1>
-            <p class="site-subtitle">Crea un ticket de soporte y el sistema clasificará automáticamente su categoría.
-            </p>
-        </div>
-    </header>
+    <div class="app-shell">
 
-    <main>
-
-        <div class="card">
-
-            <!-- Ticket ID -->
-            <div class="form-row">
-                <label for="ticket-id" class="field-label">ID de Ticket</label>
-                <input type="text" id="ticket-id" class="input-readonly" readonly />
+        <!-- ── Sidebar izquierda ── -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <h1 class="sidebar-title">Sistema de Clasificación de Tickets</h1>
+                <p class="sidebar-subtitle">Envía una solicitud y la IA determinará su categoría automáticamente.</p>
             </div>
 
-            <div class="divider"></div>
-
-            <!-- Subject -->
-            <div class="form-row">
-                <label for="subject" class="field-label">Asunto</label>
-                <input type="text" id="subject" class="input-text" placeholder="Ej: Problem with my recent order"
-                    maxlength="150" />
+            <div class="sidebar-meta">
+                <span>Proyecto IA · 2026</span>
+                <span>Naïve Bayes Multinomial</span>
             </div>
+        </aside>
 
-            <!-- Description -->
-            <div class="form-row">
-                <label for="descripcion" class="field-label">
-                    Descripción
-                    <span class="field-hint">— Ctrl+Enter para clasificar</span>
-                </label>
-                <textarea id="descripcion" class="textarea" rows="5"
-                    placeholder="Describe el problema con el mayor detalle posible..." maxlength="2000"></textarea>
-                <div class="textarea-footer">
-                    <span id="char-count" class="char-count">0 / 2000</span>
+        <!-- ── Panel derecho ── -->
+        <div class="main-panel">
+
+            <!-- Formulario -->
+            <section class="form-section">
+                <div class="form-header">
+                    <div class="ticket-chip">
+                        <span class="ticket-chip-label">Ticket</span>
+                        <span id="ticket-id" class="ticket-chip-value"></span>
+                    </div>
+                    <span class="ticket-badge">Nuevo</span>
                 </div>
-            </div>
 
-            <div class="actions">
-                <button id="btn-clasificar" class="btn-primary">
-                    <span class="btn-text">Clasificar Ticket</span>
-                </button>
-                <button id="btn-limpiar" class="btn-secondary">Nuevo Ticket</button>
-            </div>
+                <div class="form-body">
+                    <div class="form-field">
+                        <label for="subject" class="field-label">Asunto</label>
+                        <input
+                            type="text"
+                            id="subject"
+                            class="field-input"
+                            placeholder="Ej: Problem with my recent order"
+                            maxlength="150"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <div class="form-field">
+                        <label for="descripcion" class="field-label">
+                            Descripción
+                            <span class="field-hint">Ctrl+Enter para enviar</span>
+                        </label>
+                        <textarea
+                            id="descripcion"
+                            class="field-textarea"
+                            rows="7"
+                            placeholder="Describe el problema con el mayor detalle posible..."
+                            maxlength="2000"
+                        ></textarea>
+                        <div class="field-footer">
+                            <span id="char-count" class="char-count">0 / 2000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="btn-clasificar" class="btn-primary">
+                        <span id="btn-label">Clasificar Ticket</span>
+                    </button>
+                    <button id="btn-limpiar" class="btn-ghost">Nuevo Ticket</button>
+                </div>
+            </section>
+
+            <!-- Resultados -->
+            <section class="result-section">
+
+                <!-- Estado vacío -->
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon" aria-hidden="true">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M10 12h12M10 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <p class="empty-title">Sin resultados aún</p>
+                    <p class="empty-sub">El análisis del ticket aparecerá aquí una vez que lo clasifiques.</p>
+                </div>
+
+                <!-- Resultado -->
+                <div id="resultado" class="result-content hidden" aria-live="polite">
+                    <div class="result-category-block">
+                        <span class="result-eyebrow">Categoría predicha</span>
+                        <span id="categoria" class="result-category"></span>
+                        <span id="resultado-ticket-id" class="result-ticket-ref"></span>
+                    </div>
+                    <div id="result-confidence" class="result-confidence-block"></div>
+
+                    <div class="prob-block">
+                        <p class="prob-title">Distribución de probabilidades</p>
+                        <div id="prob-chart" class="prob-chart"></div>
+                    </div>
+                </div>
+
+                <!-- Error -->
+                <div id="error" class="error-block hidden" aria-live="assertive">
+                    <svg class="error-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 6v5M10 13.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span id="error-msg"></span>
+                </div>
+
+            </section>
+
         </div>
-
-        <section id="resultado" class="resultado hidden" aria-live="polite">
-            <div class="resultado-meta">
-                <span id="resultado-ticket-id" class="resultado-ticket-id"></span>
-                <span class="resultado-label">Categoría predicha</span>
-            </div>
-            <div id="categoria" class="resultado-valor"></div>
-        </section>
-
-        <section id="error" class="error hidden" aria-live="assertive">
-            <span id="error-msg"></span>
-        </section>
-
-    </main>
-
-    <footer class="site-footer">
-        <span>Proyecto IA</span>
-        <span class="sep">-</span>
-        <span>Christopher Yuman - Susana García - Erick Rivas</span>
-        <span class="sep">-</span>
-        <span>2026</span>
-    </footer>
+    </div>
 
     <script src="/static/js/app.js"></script>
 </body>
-
 </html>

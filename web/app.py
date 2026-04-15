@@ -72,8 +72,9 @@ async def predict(request: Request):
 
         # Paso 3: predecir la categoría con el modelo entrenado
         categoria = modelo.predict(vector)
+        probabilidades = modelo.predict_proba(vector)
 
-        return JSONResponse({"categoria": categoria})
+        return JSONResponse({"categoria": categoria, "probabilidades": probabilidades})
 
     except Exception as e:
         return JSONResponse(
