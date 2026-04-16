@@ -74,9 +74,8 @@ Usuario → POST /predict → preprocess_text() → text_to_bow() → NaiveBayes
 
 ```
 proyecto_IA/
-├── data/
-│   ├── raw/                        # Datos originales sin procesar
-│   └── processed/                  # Datos procesados
+├── docs/
+│   └── documentacion_IA.pdf        # Documentación del proyecto
 ├── models/
 │   ├── vocab.json                  # Vocabulario generado por el pipeline
 │   └── naive_bayes_model.json      # Pesos del modelo entrenado
