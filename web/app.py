@@ -13,13 +13,13 @@ SRC_DIR = os.path.join(BASE_DIR, "..", "src")
 MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
 sys.path.insert(0, SRC_DIR)
 
-# Importar el pipeline de preprocesamiento (Persona 1)
+# Importar el pipeline de preprocesamiento 
 from pipeline import preprocess_text
 
-# Importar la función de vectorización (Persona 1)
+# Importar la función de vectorización 
 from model.vectorizer import text_to_bow
 
-# Importar el clasificador (Persona 2)
+# Importar el clasificador
 from model.naive_bayes import NaiveBayesMultinomial
 
 
@@ -29,7 +29,6 @@ with open(os.path.join(MODELS_DIR, "vocab.json"), "r", encoding="utf-8") as f:
     vocab = json.load(f)
 
 # --- Cargar modelo entrenado ---
-# El modelo fue entrenado por la Persona 2 y guardado en formato JSON
 modelo = NaiveBayesMultinomial()
 modelo.load(os.path.join(MODELS_DIR, "naive_bayes_model.json"))
 

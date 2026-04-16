@@ -1,17 +1,17 @@
-const btnClasificar   = document.getElementById("btn-clasificar");
-const btnLimpiar      = document.getElementById("btn-limpiar");
-const ticketIdEl      = document.getElementById("ticket-id");
-const subjectEl       = document.getElementById("subject");
-const descripcionEl   = document.getElementById("descripcion");
-const charCountEl     = document.getElementById("char-count");
-const emptyState      = document.getElementById("empty-state");
-const resultContent   = document.getElementById("resultado");
+const btnClasificar = document.getElementById("btn-clasificar");
+const btnLimpiar = document.getElementById("btn-limpiar");
+const ticketIdEl = document.getElementById("ticket-id");
+const subjectEl = document.getElementById("subject");
+const descripcionEl = document.getElementById("descripcion");
+const charCountEl = document.getElementById("char-count");
+const emptyState = document.getElementById("empty-state");
+const resultContent = document.getElementById("resultado");
 const resultTicketRef = document.getElementById("resultado-ticket-id");
-const categoriaEl     = document.getElementById("categoria");
-const resultConf      = document.getElementById("result-confidence");
-const probChartEl     = document.getElementById("prob-chart");
-const errorBlock      = document.getElementById("error");
-const errorMsgEl      = document.getElementById("error-msg");
+const categoriaEl = document.getElementById("categoria");
+const resultConf = document.getElementById("result-confidence");
+const probChartEl = document.getElementById("prob-chart");
+const errorBlock = document.getElementById("error");
+const errorMsgEl = document.getElementById("error-msg");
 
 // ── Ticket ID ───────────────────────────────────────────
 function generarTicketId() {
@@ -87,7 +87,7 @@ function limpiarResultados() {
     emptyState.classList.remove("hidden");
 }
 
-// ── Clasificar — solo usa la descripción ───────────────
+// ── Clasificar —
 async function clasificar() {
     const descripcion = descripcionEl.value.trim();
 
@@ -100,7 +100,7 @@ async function clasificar() {
     setLoading(true);
 
     try {
-        const res  = await fetch("/predict", {
+        const res = await fetch("/predict", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ texto: descripcion }),
